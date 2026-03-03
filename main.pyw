@@ -31,8 +31,13 @@ class TimeTableApp(tk.Tk):
         init_db()
 
         # --- Main UI ---
-        self.periods = [("morning", "上午"), ("afternoon", "下午"), ("evening", "晚上")]
-        self.period_map = dict(self.periods)
+        self.periods = [
+            ("morning", "上午", "09:00 - 14:00"),
+            ("afternoon", "下午", "14:00 - 19:00"),
+            ("evening", "晚上", "19:00 - 24:00")
+        ]
+        self.period_map = {p[0]: p[1] for p in self.periods}
+        self.period_time_map = {p[0]: p[2] for p in self.periods}
         self.create_widgets()
         self.render_timetable()
         
@@ -83,8 +88,9 @@ class TimeTableApp(tk.Tk):
         today_weekday = datetime.datetime.now().weekday() # Monday is 0
 
         # Create period labels
-        for i, (period_key, period_name) in enumerate(self.periods):
-            label = tk.Label(self.timetable_frame, text=period_name, background='#6c757d', foreground='white', font=('Helvetica', 10, 'bold'), padx=10, pady=10)
+        for i, (period_key, period_name, period_time) in enumerate(self.periods):
+            label_text = f"{period_name}\n({period_time})"
+            label = tk.Label(self.timetable_frame, text=label_text, background='#6c757d', foreground='white', font=('Helvetica', 10, 'bold'), padx=10, pady=10)
             label.grid(row=i + 1, column=0, sticky="nsew")
 
         # Create headers
@@ -96,7 +102,7 @@ class TimeTableApp(tk.Tk):
         # Create text cells
         self.cells = {}
         cell_colors = {'morning': '#fffbe6', 'afternoon': '#e6f7ff', 'evening': '#f3e8ff'}
-        for row, (period, _) in enumerate(self.periods):
+        for row, (period, _, _) in enumerate(self.periods):
             for col, day_name in enumerate(days):
                 day_of_week = col
                 cell = tk.Text(self.timetable_frame, wrap=tk.WORD, height=5, width=15, relief=tk.FLAT, borderwidth=2, font=('Helvetica', 14), bg=cell_colors[period], padx=5, pady=5)
@@ -140,7 +146,8 @@ class TimeTableApp(tk.Tk):
             period = "evening"
 
         period_name = self.period_map.get(period, "")
-        self.current_period_label.config(text=f"今日{period_name}")
+        period_time = self.period_time_map.get(period, "")
+        self.current_period_label.config(text=f"今日{period_name}\n({period_time})")
 
         content = ""
         cell = self.cells.get((weekday, period))
