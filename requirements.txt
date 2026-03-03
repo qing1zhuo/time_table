@@ -1,0 +1,3 @@
+plyer
+Flask
+Flask-Cors
